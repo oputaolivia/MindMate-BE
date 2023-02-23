@@ -64,7 +64,7 @@ const login = async (req, res)=>{
     const {email, password} = req.body;
     User.findOne({
         email: email
-    }), async(err, user)=>{
+    }, async(err, user)=>{
         if (err){
             res.status(500).send({
                 data: {},
@@ -105,12 +105,13 @@ const login = async (req, res)=>{
                             email: user.email,
                         },
                         message: "User logged in",
+                        token: token,
                         status:0,
                     });
                 }
             })
         }
-    }
+    });
 }
 
 const auth = (req, res, next) => {

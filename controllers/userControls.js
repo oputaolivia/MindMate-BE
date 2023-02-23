@@ -18,7 +18,7 @@ const getUser = async (req,res)=>{
     }catch (err){
         res.status(500).send({
             data: {},
-            message: err,
+            error: err.message,
             status: 1,
         });
     }
@@ -40,8 +40,60 @@ const getUsers = async ( req, res)=>{
         });
     }
 }
-
+  
+const updateUser = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user;
+  
+      if (id !== userId)
+        return res
+          .status(401)
+          .send({ data: {}, message: "Unauthorized!", status: 1 });
+  
+      const user = await User.findOne({
+        _id: id,
+      });
+  
+      const updatedUser = await User.findByIdAndUpdate(id, req.body);
+  
+      res
+        .status(201)
+        .send({ data: updatedUser, message: "User Updated", status: 0 });
+    } catch (err) {
+      res.status(500).send({ data: {}, error: `${err.message}`, status: 1 });
+    }
+  };
+  
+  const deleteUser = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user;
+  
+      if (id !== userId)
+        return res
+          .status(401)
+          .send({ data: {}, message: "Unauthorized!", status: 1 });
+  
+      const user = await User.findOne({
+        _id: id,
+      });
+      if (!user)
+        return res.status(401).send({
+          data: {},
+          message: "User does not exist!",
+          status: 1,
+        });
+  
+      const deletedUser = await User.findByIdAndRemove(id);
+      res.status(201).send({ message: "User Deleted", status: 0 });
+    } catch (err) {
+      res.status(500).send({ data: {}, error: `${err.message}`, status: 1 });
+    }
+  };
 module.exports = {
     getUser,
     getUsers,
+    updateUser,
+    deleteUser,
 }

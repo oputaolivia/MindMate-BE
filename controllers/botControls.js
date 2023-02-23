@@ -1,11 +1,12 @@
 const dotenv = require('dotenv');
 const {Configuration, OpenAIApi} = require('openai');
 const Chat = require('../model/chatModel');
-
+const User = require('../model/userModel');
+const {login, tokenIsValid} = require('../utils/auth');
 dotenv.config();
 
-const botResp = []
-const userResp = []
+// const botResp = []
+// const userResp = []
 const username = "Marshall"
 
 const prmpt = `As the virtual mental health therapist for MindMate, provide guidance and support to users who may be experiencing a wide range of mental health issues. Your responses should be empathetic, non-judgmental, and informed by current best practices in mental health care. Your goal is to help users feel heard, understood, and empowered to take steps towards healing and self-improvement.
@@ -35,12 +36,7 @@ const openai = new OpenAIApi(configuration);
 // Handling incoming messages
 const chatBot = async (req, res) => {
     const prompt = req.query.text;
-    const botMessage = await generateText(prompt);
-    res.json({
-        message: botMessage,
-    });
-
-
+    const message = await generateText(prompt);
 // Function to generate text from ChatGPT
 async function generateText(prompt) {
     const completions = await openai.createCompletion({
@@ -63,35 +59,38 @@ async function generateText(prompt) {
     let AIResp = await generateText(prompt)
     //if there was a response, update the chat histories
     if(AIResp){
-        let chat = new Chat ({
-            MindMate: AIResp,
-            user: prompt,
-        });
-        chat.save((err, chat)=>{
-            if (err){
-                res.status(500).send({
-                    data: {},
-                        message: `An error occured during registration: ${err}`,
-                        status: 1,
-                })
-            }else{
-                res.status(201).send({
-                    data: chat,
-                    message: "Chat saved",
-                    status: 0,
-                });
-            
-            }
-        })
-    //   userResp.push(prompt)
-    //   botResp.push(AIResp)
-    //   //
     //   console.log(`${username}: ${prompt}\n\n`)
-    //   console.log(`MindMate: ${AIResp}`)
+    if (login){
+        console.log(`Response: ${AIResp}`)
+        // console.log(login.req.email)
+    let chat = new Chat ({
+        // userId: tokenIsValid.user,
+        MindMate: AIResp,
+        userMessage: prompt,
+    });
+    chat.save((err, chat)=>{
+        if (err){
+            res.status(500).send({
+                data: {},
+                    message: `An error occured during registration: ${err}`,
+                    status: 1,
+            });
+            console.log(err)
+        }else{
+            res.status(201).send({
+                data: chat,
+                message: "Chat saved",
+                status: 0,
+            });
+            console.log(`${username}: ${prompt}\n\n`)
+            console.log(`MindMate: ${AIResp}`)
+        }
+    })
+}
     }
-    
-  }
-prepareChat("I've been feeling really down lately, and I don't have the energy or motivation to do anything. I used to love spending time with my friends and pursuing my hobbies, but now everything feels like a chore. I don't know what to do, and I just feel hopeless all the time. Can you help me?");
+}
+    let userMessage = req.body.prompt;
+    prepareChat(userMessage);
 }
 module.exports={
     chatBot,
