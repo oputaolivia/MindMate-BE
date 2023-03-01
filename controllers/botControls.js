@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 const {Configuration, OpenAIApi} = require('openai');
 const Chat = require('../model/chatModel');
 const User = require('../model/userModel');
-const {login, tokenIsValid} = require('../utils/auth');
+const {login, auth} = require('../utils/auth');
 dotenv.config();
 
 // const botResp = []
@@ -43,7 +43,7 @@ async function generateText(prompt) {
       model: process.env.CHATGPT_MODEL,
       prompt: prompt,
       max_tokens: 250,
-      temperature: 0
+      temperature: 1
     });
     const message = completions.data.choices[0].text.trim();
     //console.log(message);
@@ -60,7 +60,7 @@ async function generateText(prompt) {
     //if there was a response, update the chat histories
     if(AIResp){
     //   console.log(`${username}: ${prompt}\n\n`)
-    if (login){
+    if (auth){
         console.log(`Response: ${AIResp}`)
         // console.log(login.req.email)
     let chat = new Chat ({
@@ -92,6 +92,23 @@ async function generateText(prompt) {
     let userMessage = req.body.prompt;
     prepareChat(userMessage);
 }
+const getChats = async (req,res) =>{
+    try{
+        const chats = await Chat.find({});
+        res.status(200).send({
+            data: chats,
+            message: "Chats",
+            status: 0,
+        })
+    }catch (err){
+        res.status(500).send({
+            data: {},
+            message: err,
+            status: 1,
+        });
+    }
+}
 module.exports={
     chatBot,
+    getChats,
 }
