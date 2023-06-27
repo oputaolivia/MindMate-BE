@@ -5,8 +5,6 @@ const User = require('../model/userModel');
 const {login, auth} = require('../utils/auth');
 dotenv.config();
 
-// const botResp = []
-// const userResp = []
 const username = "Marshall"
 
 const prmpt = `As the virtual mental health therapist for MindMate, provide guidance and support to users who may be experiencing a wide range of mental health issues. Your responses should be empathetic, non-judgmental, and informed by current best practices in mental health care. Your goal is to help users feel heard, understood, and empowered to take steps towards healing and self-improvement.
@@ -29,7 +27,6 @@ const configuration = new Configuration({
   apiKey : `${process.env.CHATGPT_API_KEY}`,
 })
 
-
 // Initialize the OpenAI API client
 const openai = new OpenAIApi(configuration);
 
@@ -46,7 +43,6 @@ async function generateText(prompt) {
       temperature: 1
     });
     const message = completions.data.choices[0].text.trim();
-    //console.log(message);
     return message;
   }
   
@@ -59,12 +55,9 @@ async function generateText(prompt) {
     let AIResp = await generateText(prompt)
     //if there was a response, update the chat histories
     if(AIResp){
-    //   console.log(`${username}: ${prompt}\n\n`)
     if (auth){
         console.log(`Response: ${AIResp}`)
-        // console.log(login.req.email)
     let chat = new Chat ({
-        // userId: tokenIsValid.user,
         MindMate: AIResp,
         userMessage: prompt,
     });
@@ -72,8 +65,8 @@ async function generateText(prompt) {
         if (err){
             res.status(500).send({
                 data: {},
-                    message: `An error occured during registration: ${err}`,
-                    status: 1,
+                message: `An error occured during registration: ${err}`,
+                status: 1,
             });
             console.log(err)
         }else{
@@ -89,9 +82,11 @@ async function generateText(prompt) {
 }
     }
 }
-    let userMessage = req.body.prompt;
-    prepareChat(userMessage);
-}
+let userMessage = req.body.prompt;
+prepareChat(userMessage);
+};
+
+
 const getChats = async (req,res) =>{
     try{
         const chats = await Chat.find({});
