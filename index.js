@@ -12,6 +12,8 @@ const app = express();
 dotenv.config();
 connectDB();
 
+const PORT = process.env.PORT || 3000;
+
 const corsOptions = {
     origin: "*",
     credentials: true, //access-control-allow-credentials:true
@@ -19,8 +21,6 @@ const corsOptions = {
   };
 app.use(cors(corsOptions));
 app.use(express.json());
-
-const PORT = process.env.PORT || 3000;
 
 app.use("/user", userRoute);
 app.use("/bot", botRoute);
