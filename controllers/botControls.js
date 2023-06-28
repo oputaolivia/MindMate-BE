@@ -5,7 +5,11 @@ const User = require('../model/userModel');
 const {login, auth} = require('../utils/auth');
 dotenv.config();
 
-const username = "Marshall"
+const CHATGPT_KEY = process.env.CHATGPT_API_KEY;
+const CHATGPT_URL = process.env.CHATGPT_API_URL;
+const CHATGPT_MODEL = process.env.CHATGPT_MODEL;
+const CHATGPT_TEMP = process.env.CHATGPT_TEMPERATURE;
+const CHATGPT_MAX_LENGTH = process.env.CHATGPT_MAX_LENGTH;
 
 const prmpt = `As the virtual mental health therapist for MindMate, provide guidance and support to users who may be experiencing a wide range of mental health issues. Your responses should be empathetic, non-judgmental, and informed by current best practices in mental health care. Your goal is to help users feel heard, understood, and empowered to take steps towards healing and self-improvement.
 
@@ -24,7 +28,7 @@ A user who is seeking general guidance on improving their mental health and well
 Please provide thorough, thoughtful, and evidence-based responses that take into account the unique needs and circumstances of each user.`;
 
 const configuration = new Configuration({
-  apiKey : `${process.env.CHATGPT_API_KEY}`,
+  apiKey : `${CHATGPT_KEY}`,
 })
 
 // Initialize the OpenAI API client
@@ -37,10 +41,10 @@ const chatBot = async (req, res) => {
 // Function to generate text from ChatGPT
 async function generateText(prompt) {
     const completions = await openai.createCompletion({
-      model: process.env.CHATGPT_MODEL,
+      model: CHATGPT_MODEL,
       prompt: prompt,
-      max_tokens: 250,
-      temperature: 1
+      max_tokens: CHATGPT_MAX_LENGTH,
+      temperature: CHATGPT_TEMP,
     });
     const message = completions.data.choices[0].text.trim();
     return message;
@@ -65,7 +69,7 @@ async function generateText(prompt) {
         if (err){
             res.status(500).send({
                 data: {},
-                message: `An error occured during registration: ${err}`,
+                message: `An error occured: ${err}`,
                 status: 1,
             });
             console.log(err)
